@@ -48,3 +48,42 @@ Then you can type commands:
 > help              (shows commands)
 > exit              (quit watch mode)
 ```
+
+
+## Add the Snippet to VS Code:
+1. Open VS Code
+2. Press "Ctrl+Shift+P" to open the Command Palette
+3. Type "Configure Snippets" and select it
+4. From all the options, look for one that says "typescript" or "typescript.json".
+5. Paste the snippet JSON inside the existing curly braces {}
+6. Save
+
+## How to Use the Snippet
+In any `.ts` file, type one of these and press `Tab`:
+
+### `debug` + TAB
+
+```typescript
+// DEBUG START []
+|  <-- cursor here
+// DEBUG END
+```
+
+### `debuglog` + TAB
+
+```typescript
+// DEBUG START []
+console.log("", );
+// DEBUG END
+```
+
+### `debugt` + TAB
+
+```typescript
+// DEBUG START [|]  <-- cursor here
+// DEBUG END
+```
+
+
+
+
