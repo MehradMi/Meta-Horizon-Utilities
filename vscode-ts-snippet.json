@@ -1,0 +1,29 @@
+{
+  "Debug Section": {
+    "prefix": "debug",
+    "body": [
+      "// DEBUG START${1: [$2]}",
+      "$0",
+      "// DEBUG END"
+    ],
+    "description": "Insert a debug section with optional tag"
+  },
+  "Debug Section with Console Log": {
+    "prefix": "debuglog",
+    "body": [
+      "// DEBUG START${1: [$2]}",
+      "console.log(\"$3\", $4);",
+      "// DEBUG END"
+    ],
+    "description": "Insert a debug section with console.log"
+  },
+  "Debug Section Tagged": {
+    "prefix": "debugt",
+    "body": [
+      "// DEBUG START [$1]",
+      "$0",
+      "// DEBUG END"
+    ],
+    "description": "Insert a debug section with required tag"
+  }
+}
