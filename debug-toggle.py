@@ -1,4 +1,22 @@
 #!/usr/bin/env python3
+"""
+Debug Toggle Script for TypeScript Files
+Toggles debug sections between commented and uncommented states.
+
+Usage:
+    # CLI Mode
+    python debug_toggle.py <file.ts> [--mode comment|uncomment|toggle] [--only tag1,tag2] [--except tag1,tag2]
+    python debug_toggle.py <directory> [--mode comment|uncomment|toggle] [--recursive] [--only tag1,tag2] [--except tag1,tag2]
+    
+    # Watch Mode (Interactive)
+    python debug_toggle.py watch <directory> [--recursive]
+
+Tags in TypeScript:
+    // DEBUG START [tag]
+    // DEBUG START [keep]
+    // DEBUG START [production]
+    // DEBUG START          (no tag = default)
+"""
 
 import sys
 import os
@@ -16,6 +34,18 @@ def parse_debug_tag(line: str) -> Optional[str]:
     return None
 
 def process_file(filepath: str, mode: str = 'toggle', only_tags: Set[str] = None, except_tags: Set[str] = None) -> Tuple[bool, str, Set[str]]:
+    """
+    Process a single TypeScript file to toggle debug sections.
+    
+    Args:
+        filepath: Path to the .ts file
+        mode: 'comment', 'uncomment', or 'toggle'
+        only_tags: Set of tags to process (None = all)
+        except_tags: Set of tags to skip (None = none)
+    
+    Returns:
+        Tuple of (success, message, all_tags_found)
+    """
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -136,12 +166,21 @@ def get_ts_files(directory: str, recursive: bool = False, file_filter: Set[str] 
         # Filter files based on the filter set
         filtered = []
         for f in all_files:
-            # Check if filename matches any filter
             filename = f.name
             rel_path = str(f.relative_to(path))
+            abs_path = str(f)
             
             for filter_item in file_filter:
-                if filter_item in [filename, rel_path, str(f)]:
+                # Remove quotes if present
+                filter_item = filter_item.strip('"').strip("'")
+                
+                # Match against filename, relative path, or if filter is contained in path
+                if (filter_item == filename or 
+                    filter_item == rel_path or 
+                    filter_item == abs_path or
+                    filename.lower() == filter_item.lower() or
+                    rel_path.endswith(filter_item) or
+                    filter_item in rel_path):
                     filtered.append(f)
                     break
         return filtered
@@ -173,6 +212,19 @@ def process_directory(directory: str, mode: str = 'toggle', recursive: bool = Fa
     return success_count, all_tags
 
 def parse_watch_command(cmd: str) -> dict:
+    """
+    Parse watch mode commands with flexible syntax.
+    
+    Supported formats:
+    - comment all
+    - uncomment tag1,tag2
+    - toggle all in file.ts
+    - comment tag1 in file1.ts,file2.ts
+    - uncomment all except tag1,tag2
+    - toggle tag1,tag2 in file.ts except tag3
+    
+    Returns dict with: action, tags, files, except_tags
+    """
     result = {
         'action': None,
         'tags': None,  # None means all
